@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dunes-script-module name="executePostRequest" result-type="string" api-version="6.0.0" id="2f13f4ea-2a0d-4762-acca-6826a1761e02" version="0.0.0" allowed-operations="vef">
+  <param n="restHost" t="REST:RESTHost"><![CDATA[]]></param>
+  <param n="path" t="string"><![CDATA[]]></param>
+  <param n="body" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[var req = restHost.createRequest('POST',path,body);
+req.contentType = 'application/json';
+var response;
+try {
+	response = req.execute();
+} catch (e) {
+	if (e.toString().indexOf('Certificate is not in CA store') > -1) {
+		System.log("Remote certificate for "+restHost.url+" is not in the SSL Trust Store.  Adding it.");
+		sslImportOut = System.getModule("com.vmware.pso.vrocontrolcenter").importSslCertFromUrl(restHost.url);
+		if (sslImportOut != null) {
+			throw('Error importing remote SSL Certificate from '+restHost.url+' - '+sslImportOut);
+		}
+		response = req.execute();
+	}
+	else {
+		throw(e);
+	}
+}
+
+if (response.statusCode < 400) {
+	System.debug('StatusCode: '+response.statusCode);
+	return response.contentAsString;
+}
+System.error('StatusCode: '+response.statusCode);
+throw response.contentAsString;]]></script>
+</dunes-script-module>

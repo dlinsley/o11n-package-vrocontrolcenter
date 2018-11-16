@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dunes-script-module name="executeGetRequest" result-type="string" api-version="6.0.0" id="3c2f5a10-df52-41db-b048-e7c3ef36ec0e" version="0.0.0" allowed-operations="vef">
+  <param n="restHost" t="REST:RESTHost"><![CDATA[]]></param>
+  <param n="path" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[var req = restHost.createRequest('GET',path);
+var response = req.execute();
+if (response.statusCode < 400) {
+	System.debug('StatusCode: '+response.statusCode);
+	return response.contentAsString;
+}
+
+System.error('StatusCode: '+response.statusCode);
+throw response.contentAsString;]]></script>
+</dunes-script-module>

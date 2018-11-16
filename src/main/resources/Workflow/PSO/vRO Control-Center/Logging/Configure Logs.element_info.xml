@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>Exported from [server]</comment>
+<entry key="categoryPath">PSO.vRO Control-Center.Logging</entry>
+<entry key="name">Configure Logs</entry>
+<entry key="type">Workflow</entry>
+<entry key="id">f3580d35-cf08-4e10-ae69-16977cb29b8b</entry>
+</properties>

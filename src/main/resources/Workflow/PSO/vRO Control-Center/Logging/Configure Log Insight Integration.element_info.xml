@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>Exported from [server]</comment>
+<entry key="categoryPath">PSO.vRO Control-Center.Logging</entry>
+<entry key="name">Configure Log Insight Integration</entry>
+<entry key="type">Workflow</entry>
+<entry key="id">96e90581-b659-4847-b25e-c8d601f241f9</entry>
+</properties>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>Exported from [server]</comment>
+<entry key="categoryPath">PSO.vRO Control-Center.Authentication</entry>
+<entry key="name">Set Hostname</entry>
+<entry key="type">Workflow</entry>
+<entry key="id">c78119f3-1efa-49cc-8c59-c79e315e7f7c</entry>
+</properties>

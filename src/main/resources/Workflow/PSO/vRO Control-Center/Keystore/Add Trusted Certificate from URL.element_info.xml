@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>Exported from [server]</comment>
+<entry key="categoryPath">PSO.vRO Control-Center.Keystore</entry>
+<entry key="name">Add Trusted Certificate from URL</entry>
+<entry key="type">Workflow</entry>
+<entry key="id">7c781e52-d4cf-4e44-a695-6cc9ef91f06c</entry>
+</properties>

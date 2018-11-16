@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item7" object-name="workflow:name=generic" id="d0b571b2-1b8b-4955-a81d-a17d0573e153" version="0.0.7" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Configure vSphere Authentication]]></display-name>
+  <description><![CDATA[Configures vSphere single signon authentication for a remote vRO via the control-center API.]]></description>
+  <position y="50.0" x="100.0"></position>
+  <input>
+    <param name="hostname" type="string">
+      <description><![CDATA[Remote vRO hostname]]></description>
+    </param>
+    <param name="username" type="string">
+      <description><![CDATA[Control Center user on remote vRO (typically root)]]></description>
+    </param>
+    <param name="password" type="SecureString">
+      <description><![CDATA[Control Center password]]></description>
+    </param>
+    <param name="pscHostname" type="string">
+      <description><![CDATA[vSphere PSC hostname]]></description>
+    </param>
+    <param name="defaultTenant" type="string">
+      <description><![CDATA[Default SSO tenant (typically vsphere.local)]]></description>
+    </param>
+    <param name="ssoUsername" type="string">
+      <description><![CDATA[SSO Administrator Username]]></description>
+    </param>
+    <param name="ssoPassword" type="SecureString">
+      <description><![CDATA[SSO Administrator Password]]></description>
+    </param>
+    <param name="adminGroup" type="string">
+      <description><![CDATA[User group that will have initial access to vRO]]></description>
+    </param>
+    <param name="adminDomain" type="string">
+      <description><![CDATA[Domain of the user group that will have initial access to vRO]]></description>
+    </param>
+  </input>
+  <output>
+    <param name="configId" type="string"></param>
+  </output>
+  <attrib name="restHost" type="REST:RESTHost" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="authTemplate" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="pscUrl" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="864.5"></position>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item2" type="task" script-module="com.vmware.pso.vrocontrolcenter/getRestHost">
+    <display-name><![CDATA[getRestHost]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.pso.vrocontrolcenter").getRestHost(hostname,username,password) ;]]></script>
+    <in-binding>
+      <bind name="hostname" type="string" export-name="hostname"></bind>
+      <bind name="username" type="string" export-name="username"></bind>
+      <bind name="password" type="SecureString" export-name="password"></bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="REST:RESTHost" export-name="restHost"></bind>
+    </out-binding>
+    <position y="55.40909090909091" x="484.5"></position>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item3" catch-name="item4" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[get Template]]></display-name>
+    <script encoded="false"><![CDATA[//get auth template
+authTemplate = System.getModule("com.vmware.pso.vrocontrolcenter").executePostRequest(restHost,'/vco-controlcenter/api/authentication/configuration/provider/VSPHERE',null);
+]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"></bind>
+    </in-binding>
+    <out-binding>
+      <bind name="authTemplate" type="string" export-name="authTemplate"></bind>
+    </out-binding>
+    <position y="55.40909090909091" x="604.5"></position>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item0" catch-name="item5" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Configure Auth]]></display-name>
+    <script encoded="false"><![CDATA[var authObj = JSON.parse(authTemplate);
+
+authObj.authentication.VSPHERE.url = 'https://'+pscHostname+'/lookupservice/sdk';
+authObj.authentication.VSPHERE.username = ssoUsername;
+authObj.authentication.VSPHERE.password = ssoPassword;
+authObj.authentication.VSPHERE.defaultTenant = defaultTenant;
+authObj.authentication.VSPHERE.adminGroup = adminGroup;
+authObj.authentication.VSPHERE.adminGroupDomain = adminDomain;
+
+configId = authObj.id;
+
+System.log(JSON.stringify(authObj.authentication,null,4));
+//update auth obj
+var response = System.getModule("com.vmware.pso.vrocontrolcenter").executePostRequest(restHost,'/vco-controlcenter/api/authentication/configuration/'+configId,JSON.stringify(authObj.authentication));
+responseObj = JSON.parse(response);
+System.log (JSON.stringify(responseObj,null,4));
+
+if (responseObj.state != "APPROVED") {
+	System.error(JSON.stringify(responseObj,null,4));
+	throw 'authentication configuration was not approved';
+}
+
+//finish authentication
+var response = System.getModule("com.vmware.pso.vrocontrolcenter").executePostRequest(restHost,'/vco-controlcenter/api/authentication/configuration/'+configId+'/finish');
+System.log("Authentication configration complete");]]></script>
+    <in-binding>
+      <bind name="pscHostname" type="string" export-name="pscHostname"></bind>
+      <bind name="defaultTenant" type="string" export-name="defaultTenant"></bind>
+      <bind name="ssoUsername" type="string" export-name="ssoUsername"></bind>
+      <bind name="ssoPassword" type="SecureString" export-name="ssoPassword"></bind>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"></bind>
+      <bind name="authTemplate" type="string" export-name="authTemplate"></bind>
+      <bind name="adminGroup" type="string" export-name="adminGroup"></bind>
+      <bind name="adminDomain" type="string" export-name="adminDomain"></bind>
+    </in-binding>
+    <out-binding>
+      <bind name="configId" type="string" export-name="configId"></bind>
+    </out-binding>
+    <position y="55.40909090909091" x="724.5"></position>
+  </workflow-item>
+  <workflow-item name="item4" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="109.04545454545453" x="644.5"></position>
+  </workflow-item>
+  <workflow-item name="item5" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="109.04545454545453" x="764.5"></position>
+  </workflow-item>
+  <workflow-item name="item6" out-name="item1" catch-name="item8" throw-bind-name="errorCode" type="link" linked-workflow-id="7c781e52-d4cf-4e44-a695-6cc9ef91f06c">
+    <display-name><![CDATA[Add Trusted Certificate from URL]]></display-name>
+    <in-binding>
+      <bind name="hostname" type="string" export-name="hostname"></bind>
+      <bind name="username" type="string" export-name="username"></bind>
+      <bind name="password" type="SecureString" export-name="password"></bind>
+      <bind name="trustedUrl" type="string" export-name="pscUrl"></bind>
+    </in-binding>
+    <out-binding></out-binding>
+    <position y="55.40909090909091" x="344.5"></position>
+  </workflow-item>
+  <workflow-item name="item7" out-name="item6" type="task">
+    <display-name><![CDATA[psc url]]></display-name>
+    <script encoded="false"><![CDATA[pscUrl = 'https://'+pscHostname;]]></script>
+    <in-binding>
+      <bind name="pscHostname" type="string" export-name="pscHostname"></bind>
+    </in-binding>
+    <out-binding>
+      <bind name="pscUrl" type="string" export-name="pscUrl"></bind>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"></position>
+  </workflow-item>
+  <workflow-item name="item8" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="109.04545454545453" x="385.0"></position>
+  </workflow-item>
+  <presentation>
+    <p-step>
+      <title><![CDATA[Control Center Login]]></title>
+      <p-param name="hostname">
+        <desc><![CDATA[<b>Remote vRO Hostname</b>]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="static" name="inetAddress" type="String"><![CDATA[Host name or IP address]]></p-qual>
+      </p-param>
+      <p-param name="username">
+        <desc><![CDATA[<b>Control Center username</b>
+Typically <i>root</i>]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="static" name="defaultValue" type="string"><![CDATA[root]]></p-qual>
+      </p-param>
+      <p-param name="password">
+        <desc><![CDATA[<b>Control Center password</b>]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+    </p-step>
+    <p-step>
+      <title><![CDATA[vSphere Authentication]]></title>
+      <p-param name="pscHostname">
+        <desc><![CDATA[<b>vSphere PSC Hostname</b>]]></desc>
+        <p-qual kind="static" name="inetAddress" type="String"><![CDATA[Host name or IP address]]></p-qual>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="defaultTenant">
+        <desc><![CDATA[<b>Default SSO Tenant</b>
+Typically: <i>vsphere.local</i>]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="static" name="defaultValue" type="string"><![CDATA[vsphere.local]]></p-qual>
+      </p-param>
+      <p-param name="ssoUsername">
+        <desc><![CDATA[<b>SSO Administrator Username</b>]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        <p-qual kind="static" name="defaultValue" type="string"><![CDATA[administrator@vsphere.local]]></p-qual>
+      </p-param>
+      <p-param name="ssoPassword">
+        <desc><![CDATA[<b>SSO Administrator Password</b>]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="adminGroup">
+        <desc><![CDATA[<b>User Group that will have initial admin access to vRO</b>]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+      <p-param name="adminDomain">
+        <desc><![CDATA[<b>Domain of the user group</b>]]></desc>
+        <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+      </p-param>
+    </p-step>
+  </presentation>
+</workflow>

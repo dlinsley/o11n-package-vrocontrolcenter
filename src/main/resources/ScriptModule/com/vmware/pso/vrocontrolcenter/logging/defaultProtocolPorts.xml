@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dunes-script-module name="defaultProtocolPorts" result-type="number" api-version="6.0.0" id="ee84ed9c-30fe-422d-8423-bf7441dbe204" version="0.0.0" allowed-operations="vef">
+  <param n="protocol" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[if (protocol == 'syslog') {
+	return 514;
+}
+if (protocol == 'cfapi') {
+	return 9000;
+}
+return null;]]></script>
+</dunes-script-module>

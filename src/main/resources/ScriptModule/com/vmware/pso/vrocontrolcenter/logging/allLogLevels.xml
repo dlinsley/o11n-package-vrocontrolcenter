@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dunes-script-module name="allLogLevels" result-type="Array/string" api-version="6.0.0" id="8bb2fa28-c59d-440f-aa29-e9caf9939582" version="0.0.0" allowed-operations="vef">
+  <script encoded="false"><![CDATA[return ['','ALL','TRACE','DEBUG','INFO','WARNING','ERROR','FATAL','OFF'];]]></script>
+</dunes-script-module>

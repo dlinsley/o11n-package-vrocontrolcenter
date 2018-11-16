@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="96e90581-b659-4847-b25e-c8d601f241f9" version="0.0.5" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Configure Log Insight Integration]]></display-name>
+  <position y="50.0" x="100.0"></position>
+  <input>
+    <param name="hostname" type="string"></param>
+    <param name="username" type="string"></param>
+    <param name="password" type="SecureString"></param>
+    <param name="logInsightProtocol" type="string"></param>
+    <param name="logInsightHost" type="string"></param>
+    <param name="logInsightPort" type="number"></param>
+  </input>
+  <attrib name="restHost" type="REST:RESTHost" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="logOptions" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="624.5"></position>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item3" type="task" script-module="com.vmware.pso.vrocontrolcenter/getRestHost">
+    <display-name><![CDATA[getRestHost]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.pso.vrocontrolcenter").getRestHost(hostname,username,password) ;]]></script>
+    <in-binding>
+      <bind name="hostname" type="string" export-name="hostname"></bind>
+      <bind name="username" type="string" export-name="username"></bind>
+      <bind name="password" type="SecureString" export-name="password"></bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="REST:RESTHost" export-name="restHost"></bind>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"></position>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" catch-name="item5" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Configure Log Insight Integration]]></display-name>
+    <script encoded="false"><![CDATA[var logOptionsObj = JSON.parse(logOptions);
+logOptionsObj.log4jAppenderParameters = null;
+logOptionsObj.remoteLoggingEnabled = true;
+logOptionsObj.loggingType = 'liagent';
+logOptionsObj.logInsightAgentParameters = {};
+logOptionsObj.logInsightAgentParameters.host = logInsightHost;
+logOptionsObj.logInsightAgentParameters.port = logInsightPort;
+logOptionsObj.logInsightAgentParameters.protocol = logInsightProtocol;
+logOptionsObj.logInsightAgentParameters.useSSL = false;
+
+var response = System.getModule("com.vmware.pso.vrocontrolcenter").executePostRequest(restHost,'/vco-controlcenter/api/logs/configuration',JSON.stringify(logOptionsObj));
+
+var responseObj = JSON.parse(response);
+
+System.log(JSON.stringify(responseObj,null,4));]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"></bind>
+      <bind name="logInsightHost" type="string" export-name="logInsightHost"></bind>
+      <bind name="logInsightPort" type="number" export-name="logInsightPort"></bind>
+      <bind name="logInsightProtocol" type="string" export-name="logInsightProtocol"></bind>
+      <bind name="logOptions" type="string" export-name="logOptions"></bind>
+    </in-binding>
+    <out-binding></out-binding>
+    <position y="55.40909090909091" x="484.5"></position>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item2" catch-name="item4" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Get Current Config]]></display-name>
+    <script encoded="false"><![CDATA[var response = System.getModule("com.vmware.pso.vrocontrolcenter").executeGetRequest(restHost,'/vco-controlcenter/api/logs/configuration');
+responseObj = JSON.parse(response);
+logOptions = JSON.stringify(responseObj.logOptions);]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"></bind>
+    </in-binding>
+    <out-binding>
+      <bind name="logOptions" type="string" export-name="logOptions"></bind>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"></position>
+  </workflow-item>
+  <workflow-item name="item4" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="109.04545454545453" x="385.0"></position>
+  </workflow-item>
+  <workflow-item name="item5" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="109.04545454545453" x="525.0"></position>
+  </workflow-item>
+  <presentation>
+    <p-step>
+      <title><![CDATA[Control Center]]></title>
+      <p-group>
+        <title><![CDATA[Login]]></title>
+        <desc><![CDATA[Login details to remote vRO Control Center Service]]></desc>
+        <p-param name="hostname">
+          <desc><![CDATA[<b>Hostname</b>]]></desc>
+        </p-param>
+        <p-param name="username">
+          <desc><![CDATA[<b>Username</b>
+<i>Typically: <b>root</b></i>]]></desc>
+        </p-param>
+        <p-param name="password">
+          <desc><![CDATA[<b>Password</b>]]></desc>
+        </p-param>
+      </p-group>
+      <p-group>
+        <title><![CDATA[Log Insight Integration]]></title>
+        <desc><![CDATA[Log Insight Agent connection details to remote Log Server]]></desc>
+        <p-param name="logInsightProtocol">
+          <desc><![CDATA[<b>Log Insight Agent Protocol</b>]]></desc>
+          <p-qual kind="static" name="genericEnumeration" type="Array/string"><![CDATA[#{#string#cfapi#;#string#syslog#}#]]></p-qual>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        </p-param>
+        <p-param name="logInsightHost">
+          <desc><![CDATA[<b>Remote Logging Host</b>]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+          <p-qual kind="static" name="inetAddress" type="String"><![CDATA[Host name or IP address]]></p-qual>
+        </p-param>
+        <p-param name="logInsightPort">
+          <desc><![CDATA[<b>Remote Logging Port</b>
+<i>Default port for cfapi:</i> <b>9000</b>
+<i>Default port for syslog:</i> <b>514</b>]]></desc>
+          <p-qual kind="ognl" name="dataBinding" type="number"><![CDATA[GetAction("com.vmware.pso.vrocontrolcenter.logging","defaultProtocolPorts").call( #logInsightProtocol )]]></p-qual>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        </p-param>
+      </p-group>
+    </p-step>
+  </presentation>
+</workflow>

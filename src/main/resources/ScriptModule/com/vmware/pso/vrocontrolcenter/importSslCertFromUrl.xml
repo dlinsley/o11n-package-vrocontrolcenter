@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dunes-script-module name="importSslCertFromUrl" result-type="string" api-version="6.0.0" id="9abb6f68-3589-4073-a295-1773dc804de1" version="0.0.0" allowed-operations="vef">
+  <param n="url" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[var ld = Config.getKeystores().getImportCAFromUrlAction();
+var model = ld.getModel();
+model.value = url;
+return ld.execute();]]></script>
+</dunes-script-module>

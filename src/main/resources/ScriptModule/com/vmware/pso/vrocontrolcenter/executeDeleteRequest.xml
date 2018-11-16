@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dunes-script-module name="executeDeleteRequest" result-type="string" api-version="6.0.0" id="585288a1-2bbe-46c9-bea6-d01ec43f602f" version="0.0.1" allowed-operations="vef">
+  <param n="restHost" t="REST:RESTHost"><![CDATA[]]></param>
+  <param n="path" t="string"><![CDATA[]]></param>
+  <param n="body" t="string"><![CDATA[]]></param>
+  <script encoded="false"><![CDATA[var req;
+if (body) {
+	req = restHost.createRequest('DELETE',path,body);
+	req.contentType = 'application/json';
+} else {
+	req = restHost.createRequest('DELETE',path);
+}
+var response = req.execute();
+if (response.statusCode < 400) {
+	System.debug('StatusCode: '+response.statusCode);
+	return response.contentAsString;
+}
+System.error('StatusCode: '+response.statusCode);
+throw response.contentAsString;]]></script>
+</dunes-script-module>

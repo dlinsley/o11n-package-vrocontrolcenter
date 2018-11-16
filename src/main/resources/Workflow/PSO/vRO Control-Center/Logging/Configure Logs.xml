@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow xmlns="http://vmware.com/vco/workflow" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://vmware.com/vco/workflow http://vmware.com/vco/workflow/Workflow-v4.xsd" root-name="item1" object-name="workflow:name=generic" id="f3580d35-cf08-4e10-ae69-16977cb29b8b" version="0.0.4" api-version="6.0.0" allowed-operations="vef" restartMode="1" resumeFromFailedMode="0">
+  <display-name><![CDATA[Configure Logs]]></display-name>
+  <position y="50.0" x="100.0"></position>
+  <input>
+    <param name="hostname" type="string"></param>
+    <param name="username" type="string"></param>
+    <param name="password" type="SecureString"></param>
+    <param name="globalLevel" type="string"></param>
+    <param name="scriptingLevel" type="string"></param>
+    <param name="maxFileSizeMb" type="number"></param>
+    <param name="maxFileCount" type="number"></param>
+  </input>
+  <attrib name="restHost" type="REST:RESTHost" read-only="false">
+    <value encoded="n"><![CDATA[__NULL__]]></value>
+  </attrib>
+  <attrib name="errorCode" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <attrib name="logOptions" type="string" read-only="false">
+    <value encoded="n"><![CDATA[]]></value>
+  </attrib>
+  <workflow-item name="item0" type="end" end-mode="0">
+    <position y="45.40909090909091" x="624.5"></position>
+  </workflow-item>
+  <workflow-item name="item1" out-name="item3" type="task" script-module="com.vmware.pso.vrocontrolcenter/getRestHost">
+    <display-name><![CDATA[getRestHost]]></display-name>
+    <script encoded="false"><![CDATA[//Auto generated script, cannot be modified !
+actionResult = System.getModule("com.vmware.pso.vrocontrolcenter").getRestHost(hostname,username,password) ;]]></script>
+    <in-binding>
+      <bind name="hostname" type="string" export-name="hostname"></bind>
+      <bind name="username" type="string" export-name="username"></bind>
+      <bind name="password" type="SecureString" export-name="password"></bind>
+    </in-binding>
+    <out-binding>
+      <bind name="actionResult" type="REST:RESTHost" export-name="restHost"></bind>
+    </out-binding>
+    <position y="55.40909090909091" x="204.5"></position>
+  </workflow-item>
+  <workflow-item name="item2" out-name="item0" catch-name="item5" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Configure Logs]]></display-name>
+    <script encoded="false"><![CDATA[var logOptionsObj = JSON.parse(logOptions);
+if (isSet(globalLevel)) logOptionsObj.globalLevel = globalLevel;
+if (isSet(scriptingLevel)) logOptionsObj.scriptingLevel = scriptingLevel;
+if (maxFileSizeMb != null) logOptionsObj.maxFileSizeMb = maxFileSizeMb;
+if (maxFileCount != null) logOptionsObj.maxFileCount = maxFileCount;
+
+var response = System.getModule("com.vmware.pso.vrocontrolcenter").executePostRequest(restHost,'/vco-controlcenter/api/logs/configuration',JSON.stringify(logOptionsObj));
+
+var responseObj = JSON.parse(response);
+
+System.log(JSON.stringify(responseObj,null,4));
+
+
+function isSet(s) {
+	if (s != null && s.length > 0) {
+		return true;
+	}
+	return false;
+}]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"></bind>
+      <bind name="logOptions" type="string" export-name="logOptions"></bind>
+      <bind name="globalLevel" type="string" export-name="globalLevel"></bind>
+      <bind name="scriptingLevel" type="string" export-name="scriptingLevel"></bind>
+      <bind name="maxFileSizeMb" type="number" export-name="maxFileSizeMb"></bind>
+      <bind name="maxFileCount" type="number" export-name="maxFileCount"></bind>
+    </in-binding>
+    <out-binding></out-binding>
+    <position y="55.40909090909091" x="484.5"></position>
+  </workflow-item>
+  <workflow-item name="item3" out-name="item2" catch-name="item4" throw-bind-name="errorCode" type="task">
+    <display-name><![CDATA[Get Current Config]]></display-name>
+    <script encoded="false"><![CDATA[var response = System.getModule("com.vmware.pso.vrocontrolcenter").executeGetRequest(restHost,'/vco-controlcenter/api/logs/configuration');
+responseObj = JSON.parse(response);
+logOptions = JSON.stringify(responseObj.logOptions);]]></script>
+    <in-binding>
+      <bind name="restHost" type="REST:RESTHost" export-name="restHost"></bind>
+    </in-binding>
+    <out-binding>
+      <bind name="logOptions" type="string" export-name="logOptions"></bind>
+    </out-binding>
+    <position y="55.40909090909091" x="344.5"></position>
+  </workflow-item>
+  <workflow-item name="item4" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="109.04545454545453" x="385.0"></position>
+  </workflow-item>
+  <workflow-item name="item5" throw-bind-name="errorCode" type="end" end-mode="1">
+    <position y="109.04545454545453" x="525.0"></position>
+  </workflow-item>
+  <presentation>
+    <p-step>
+      <title><![CDATA[Control Center]]></title>
+      <p-group>
+        <title><![CDATA[Login]]></title>
+        <desc><![CDATA[Login details to remote vRO Control Center Service]]></desc>
+        <p-param name="hostname">
+          <desc><![CDATA[<b>Hostname</b>]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        </p-param>
+        <p-param name="username">
+          <desc><![CDATA[<b>Username</b>
+<i>Typically: <b>root</b></i>]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        </p-param>
+        <p-param name="password">
+          <desc><![CDATA[<b>Password</b>]]></desc>
+          <p-qual kind="static" name="mandatory" type="boolean"><![CDATA[true]]></p-qual>
+        </p-param>
+      </p-group>
+      <p-group>
+        <title><![CDATA[Logging]]></title>
+        <desc><![CDATA[Any option specified here will be updated.
+Unspecified fields will have the existing value retained.]]></desc>
+        <p-param name="globalLevel">
+          <desc><![CDATA[Global Logging Level]]></desc>
+          <p-qual kind="ognl" name="genericEnumeration" type="Array/string"><![CDATA[GetAction("com.vmware.pso.vrocontrolcenter.logging","allLogLevels").call()]]></p-qual>
+        </p-param>
+        <p-param name="scriptingLevel">
+          <desc><![CDATA[Scripting Logging Level]]></desc>
+          <p-qual kind="ognl" name="genericEnumeration" type="Array/string"><![CDATA[GetAction("com.vmware.pso.vrocontrolcenter.logging","allLogLevels").call()]]></p-qual>
+        </p-param>
+        <p-param name="maxFileSizeMb">
+          <desc><![CDATA[Max File Size before Rollover in Megabytes]]></desc>
+        </p-param>
+        <p-param name="maxFileCount">
+          <desc><![CDATA[Maximum number of log files to retain before purging]]></desc>
+        </p-param>
+      </p-group>
+    </p-step>
+  </presentation>
+</workflow>

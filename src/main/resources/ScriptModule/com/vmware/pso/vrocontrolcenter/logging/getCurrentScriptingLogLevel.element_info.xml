@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>Exported from [server]</comment>
+<entry key="categoryPath">com.vmware.pso.vrocontrolcenter.logging</entry>
+<entry key="name">getCurrentScriptingLogLevel</entry>
+<entry key="type">ScriptModule</entry>
+<entry key="id">abb08b47-3f4d-4961-b6f4-5a00d53008d3</entry>
+</properties>
