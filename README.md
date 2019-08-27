@@ -16,3 +16,7 @@ Currently this package has workflows to:
 
 ## Try it out
 Latest built packages can be found at [releases](https://github.com/dlinsley/o11n-package-vrocontrolcenter/releases)
+
+
+## Building the Package
+See [BUILD.md](BUILD.md) for details on building this package from source.
