@@ -1,0 +1,42 @@
+---
+resources:
+ - name: git-repo
+   type: git
+   source:
+     uri: git@github.com:dlinsley/o11n-package-vrocontrolcenter
+     branch: master
+     private_key: ((private-repo-key))
+     
+ - name: gh-release
+   type: github-release
+   source:
+     owner: dlinsley
+     repository: o11n-package-vrocontrolcenter
+     access_token: ((github-access-token))
+     pre_release: false
+     release: true
+jobs:
+ - name: push-packages
+   public: true
+   serial: true
+   plan:
+   - get: gh-release
+     trigger: true
+   - get: git-repo
+   - task: push
+     config:
+       platform: linux
+       image_resource:
+         type: docker-image
+         source:
+           repository: maven
+           tag: 3.5-jdk-8-slim
+       inputs:
+         - name: git-repo
+         - name: gh-release
+       run:
+         path: git-repo/ci/push-packages/push.sh
+       params:
+         VRO_HOSTS: ((vro-deploy-hosts))
+         VRO_USERNAME: ((vro-deploy-user.username))
+         VRO_PASSWORD: ((vro-deploy-user.password))

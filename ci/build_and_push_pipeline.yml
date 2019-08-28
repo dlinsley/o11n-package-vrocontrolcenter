@@ -1,0 +1,54 @@
+---
+resources:
+ - name: git-repo
+   type: git
+   source:
+     uri: git@github.com:dlinsley/o11n-package-vrocontrolcenter
+     branch: master
+     private_key: ((private-repo-key)) #SSH Private key for accessing the git repo.  Ideally specified during `fly set-pipeline` or resolved by Concourse from CredHub or Vault
+     paths: ['ci','src']               #Only changes to files in these specified paths will trigger a build
+     
+jobs:
+ - name: build-push-packages
+   public: true
+   serial: true
+   plan:
+   - get: git-repo
+     trigger: true                                 # Builds will be triggered by this resource
+   - task: build
+     config:
+       platform: linux
+       image_resource:
+         type: docker-image
+         source:
+           repository: ((harbor-host))/library/o11n-maven  # See https://github.com/dlinsley/docker-o11n-maven for details on building this docker image.  Ideally the `harbor-host` variable is resolved by Concoruse from CredHub or Vault
+           username: ((harbor-user.username))              # Container registry username if needed.  Ideally sourced by Concourse from CredHub or Vault
+           password: ((harbor-user.password))              # Container registry user password if needed.  Ideally sourced by Concourse from CredHub or Vault
+           insecure_registries: [((harbor-host))]          # Needed if self signed certs are used by container registry
+           tag: 7.4.0              # Version of the vRO the o11n-maven image was built from.
+       inputs:
+         - name: git-repo
+       outputs:
+         - name: dist
+       run:
+         path: git-repo/ci/build-packages/build.sh
+       params:
+         VCO_VERSION: 7.4.0   # This version should match the the o11n-maven Image tag above.
+
+   - task: push
+     config:
+       platform: linux
+       image_resource:
+         type: docker-image
+         source:
+           repository: maven         # Image should have bash and curl available.  This maven image has both.
+           tag: 3.5-jdk-8-slim
+       inputs:
+         - name: git-repo
+         - name: dist
+       run:
+         path: git-repo/ci/push-packages/push_dist.sh
+       params:
+         VRO_HOSTS: ((vro-deploy-hosts))                # A space delimeted list of vRO hostnames/IPs  Ideally sourced by Concourse from CredHub or Vault
+         VRO_USERNAME: ((vro-deploy-user.username))     # Username in user@domain format.  Ideally sourced by Concourse from CredHub or Vault
+         VRO_PASSWORD: ((vro-deploy-user.password))     # Password for user.  Ideally sourced by Concouse from CredHUb or Vault
