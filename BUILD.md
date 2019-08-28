@@ -44,9 +44,9 @@ From the root of the project:
 
 
 ### Package Signing Certificate Generation
-If a package signing certificate keystore needs to be created using the `keytool` command provided by the JDK.
+You should create your own package Signing Certificate for your project or organization.  The JDK provides the `keytool` command to create one.
 
-To Create a self signed certificate for package signing that is good for 10 years:
+To create a self signed certificate for package signing that is good for 10 years:
 
 ``` bash
 keytool -genkeypair \
