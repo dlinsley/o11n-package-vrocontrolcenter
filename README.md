@@ -20,3 +20,6 @@ Latest built packages can be found at [releases](https://github.com/dlinsley/o11
 
 ## Building the Package
 See [BUILD.md](BUILD.md) for details on building this package from source.
+
+## Automating Build / Deployment
+See the [ci](ci) folder for example Concourse pipelines
